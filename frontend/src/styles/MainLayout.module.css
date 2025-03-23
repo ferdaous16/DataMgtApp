@@ -1,0 +1,43 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-gray-50);
+  }
+  
+  .sidebarContainer {
+    transition: all 0.3s;
+    overflow: hidden;
+  }
+  
+  .mainContent {
+    flex: 1;
+    transition: all 0.3s;
+  }
+  
+  .contentArea {
+    padding: 1.5rem;
+  }
+  
+  @media (min-width: 1024px) {
+    .mainContent {
+      margin-left: 240px;
+    }
+  }
+  
+  @media (max-width: 1023px) {
+    .sidebarOpen {
+      width: 240px;
+    }
+    
+    .sidebarClosed {
+      width: 0;
+    }
+    
+    .mainContentWithSidebar {
+      margin-left: 240px;
+    }
+    
+    .mainContentNoSidebar {
+      margin-left: 0;
+    }
+  } 

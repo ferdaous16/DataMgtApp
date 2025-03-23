@@ -1,0 +1,123 @@
+.header {
+    background-color: var(--color-white);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    padding: 0.75rem 1rem;
+  }
+  
+  .headerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .searchContainer {
+    position: relative;
+  }
+  
+  .searchInput {
+    background-color: var(--color-gray-100);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+    font-size: 0.875rem;
+    border: none;
+    width: 14rem;
+  }
+  
+  .searchInput:focus {
+    outline: none;
+    background-color: white;
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+  }
+  
+  .searchIcon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-gray-400);
+  }
+  
+  .menuButton {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--color-gray-500);
+    cursor: pointer;
+    margin-right: 1rem;
+  }
+  
+  .menuButton:hover {
+    color: var(--color-gray-700);
+  }
+  
+  .actionsContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .notificationButton {
+    position: relative;
+    background: none;
+    border: none;
+    color: var(--color-gray-500);
+    cursor: pointer;
+  }
+  
+  .notificationButton:hover {
+    color: var(--color-gray-700);
+  }
+  
+  .notificationBadge {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    background-color: var(--color-danger);
+    color: white;
+    font-size: 0.625rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .userButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding-left: 1rem;
+    border-left: 1px solid var(--color-gray-300);
+  }
+  
+  .userAvatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+  
+  .userName {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 1023px) {
+    .menuButton {
+      display: block;
+    }
+    
+    .userName {
+      display: none;
+    }
+  } 

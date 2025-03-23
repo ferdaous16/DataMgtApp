@@ -1,0 +1,107 @@
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background-color: var(--color-dark);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+  }
+  
+  .logo {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .logoTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  
+  .logoSubtitle {
+    font-size: 0.875rem;
+    color: var(--color-gray-400);
+    margin-top: 0.25rem;
+  }
+  
+  .userInfo {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .userAvatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--color-gray-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+  
+  .userName {
+    font-weight: 500;
+  }
+  
+  .userRole {
+    font-size: 0.875rem;
+    color: var(--color-gray-400);
+  }
+  
+  .navigation {
+    flex: 1;
+    padding: 1rem 0;
+    overflow-y: auto;
+  }
+  
+  .navSection {
+    padding: 0 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-gray-400);
+  }
+  
+  .navLink {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: var(--color-gray-300);
+    text-decoration: none;
+    border-radius: 0.25rem;
+    margin: 0.25rem 0.5rem;
+    transition: all 0.2s;
+  }
+  
+  .navLink:hover {
+    background-color: var(--color-primary-dark);
+    color: white;
+  }
+  
+  .navLinkActive {
+    background-color: var(--color-primary);
+    color: white;
+  }
+  
+  .navIcon {
+    margin-right: 0.75rem;
+  }
+  
+  .version {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+  } 
