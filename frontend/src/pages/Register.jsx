@@ -1,7 +1,10 @@
 import React from 'react';
+import { createClient } from "@supabase/supabase-js";
 import { Link } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+
+const supabase = createClient("https://ixhizoykoergbodzqsqq.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4aGl6b3lrb2VyZ2JvZHpxc3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMxNTQ1MTAsImV4cCI6MjA1ODczMDUxMH0.k-7GR7xhJdgmlfhcXVk7GYMPMwr-9iLiXOoRcFakwLA");
 
 const registerSchema = Yup.object().shape({
   firstName: Yup.string().required('First name is required'),
@@ -12,11 +15,21 @@ const registerSchema = Yup.object().shape({
 });
 
 const Register = () => {
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log('Register values:', values);
-    setTimeout(() => {
-      setSubmitting(false);
-    }, 1000);
+  const handleSubmit = async (values, { setSubmitting, setStatus }) => {
+    const { email, password } = values;
+  
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+  
+    if (error) {
+      setStatus({ error: error.message });
+    } else {
+      setStatus({ success: 'Registration successful! Please check your email.' });
+    }
+  
+    setSubmitting(false);
   };
 
   return (

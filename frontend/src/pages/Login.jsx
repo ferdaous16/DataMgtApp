@@ -1,7 +1,10 @@
 import React from 'react';
+import { createClient } from "@supabase/supabase-js";
 import { Link } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+
+const supabase = createClient("https://ixhizoykoergbodzqsqq.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml4aGl6b3lrb2VyZ2JvZHpxc3FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMxNTQ1MTAsImV4cCI6MjA1ODczMDUxMH0.k-7GR7xhJdgmlfhcXVk7GYMPMwr-9iLiXOoRcFakwLA");
 
 const loginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email address').required('Email is required'),
@@ -9,11 +12,24 @@ const loginSchema = Yup.object().shape({
 });
 
 const Login = () => {
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log('Login values:', values);
-    setTimeout(() => {
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (error) throw error;
+
+      console.log("Login successful:", data);
+      localStorage.setItem("token", data.session.access_token); // Store token
+      alert("Login successful!");
+    } catch (error) {
+      console.error("Login failed:", error.message);
+      setErrors({ email: error.message }); // Show error in form
+    } finally {
       setSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
