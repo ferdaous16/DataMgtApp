@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
+import DocumentList from '../DocumentList';
+import { useAuth } from '../../context/AuthContext';
 
 const EmployeeDashboard = () => {
   const [user, setUser] = useState(null);
@@ -9,6 +11,7 @@ const EmployeeDashboard = () => {
     { id: 3, title: 'Submit timesheet', priority: 'Low', status: 'Completed', due: '2025-04-10' }
   ]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('tasks');
 
   useEffect(() => {
     fetchUserData();
@@ -71,7 +74,32 @@ const EmployeeDashboard = () => {
 
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="border-b border-gray-200 mb-6">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('tasks')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'tasks'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                My Tasks
+              </button>
+              <button
+                onClick={() => setActiveTab('documents')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'documents'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                My Documents
+              </button>
+            </nav>
+          </div>
           <div className="px-4 py-6 sm:px-0">
+          {activeTab === 'tasks' ? (
             <div className="bg-white shadow rounded-lg p-6">
               <h2 className="text-xl font-semibold mb-6">My Tasks</h2>
               
@@ -158,6 +186,25 @@ const EmployeeDashboard = () => {
                 </div>
               </div>
             </div>
+          ) : (
+            <div className="bg-white shadow rounded-lg p-6">
+                <h2 className="text-xl font-semibold mb-6">My Documents</h2>
+                <DocumentList 
+                  userRole="Employee"
+                  showEmployeeFilter={false}
+                  defaultFilters={{
+                    employeeId: user?.id,
+                    documentType: ''
+                  }}
+                  allowedActions={{
+                    delete: false,
+                    download: true,
+                    viewConfidential: false
+                  }}
+                  hideColumns={['employee']}
+                />
+              </div>
+            )}
           </div>
         </div>
       </main>

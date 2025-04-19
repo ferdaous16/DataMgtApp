@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
+import { DocumentService } from '../../services/documentService';
+import DocumentList from '../../components/DocumentList';
 
 const PMDashboard = () => {
   const [user, setUser] = useState(null);
@@ -124,6 +126,28 @@ const PMDashboard = () => {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+          {/* My Documents Section */}
+          <div className="px-4 py-6 sm:px-0">
+            <div className="bg-white shadow rounded-lg p-6">
+              <h2 className="text-xl font-semibold mb-6">My Documents</h2>
+              {user && (
+                <DocumentList
+                  userRole="PM"
+                  showEmployeeFilter={false}
+                  defaultFilters={{
+                    employeeId: user.id,
+                    documentType: ''
+                  }}
+                  allowedActions={{
+                    delete: false,
+                    download: true,
+                    viewConfidential: false
+                  }}
+                  hideColumns={['employee']}
+                />
+              )}
             </div>
           </div>
         </div>
