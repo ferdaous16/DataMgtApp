@@ -58,7 +58,8 @@ export const DocumentService = {
           created_at,
           updated_at,
           confidential,
-          profiles!employee_id (first_name, last_name, email)
+          profiles:profiles!documents_employee_id_fkey (first_name, last_name, email)
+
         `);
       
       if (searchParams.documentType) {

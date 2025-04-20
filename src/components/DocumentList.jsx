@@ -3,7 +3,7 @@ import { supabase } from '../supabaseClient';
 import { DocumentService } from '../services/documentService';
 
 const DocumentList = ({ 
-  userRole = 'employee',
+  userRole = 'Employee',
   showEmployeeFilter = false,
   employees = [],
   

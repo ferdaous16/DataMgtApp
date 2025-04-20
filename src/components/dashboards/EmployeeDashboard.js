@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import DocumentList from '../DocumentList';
 import { useAuth } from '../../context/AuthContext';
+import LeaveRequestForm from '../LeaveRequestForm';
+import LeaveCalendar from '../LeaveCalendar';
+
 
 const EmployeeDashboard = () => {
   const [user, setUser] = useState(null);
@@ -12,6 +15,9 @@ const EmployeeDashboard = () => {
   ]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('tasks');
+  const [leaveRequests, setLeaveRequests] = useState([]);
+  const [leaveBalance, setLeaveBalance] = useState({});
+  const [leaveTypes, setLeaveTypes] = useState([]);
 
   useEffect(() => {
     fetchUserData();
@@ -37,7 +43,51 @@ const EmployeeDashboard = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      if (user) {
+        await Promise.all([
+          fetchLeaveRequests(),
+          fetchLeaveBalance(), 
+          fetchLeaveTypes()
+        ]);
+        setLoading(false);
+      }
+    };
+    fetchInitialData();
+  }, [user]);
 
+  const fetchLeaveRequests = async () => {
+    const { data } = await supabase
+      .from('leave_requests')
+      .select('*')
+      .eq('employee_id', user.id);
+    setLeaveRequests(data || []);
+  };
+
+  const fetchLeaveBalance = async () => {
+    const { data: balances } = await supabase
+      .from('leave_balances')
+      .select('leave_type, balance', 'leave_types(name)')
+      .eq('employee_id', user.id)
+      .eq('year', new Date().getFullYear());
+    const balanceMap = {};
+    balances?.forEach(entry => {
+      balanceMap[entry.leave_type] = entry.balance;
+    });
+  
+    setLeaveBalance(balanceMap);
+  };
+  const fetchLeaveTypes = async () => {
+    const { data } = await supabase.from('leave_types').select('*');
+    setLeaveTypes(data || []);
+  };
+
+  const tabs = [
+    { id: 'tasks', label: 'My Tasks' },
+    { id: 'documents', label: 'My Documents' },
+    { id: 'leaves', label: 'Leave Management' }
+  ];
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
@@ -76,26 +126,20 @@ const EmployeeDashboard = () => {
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="border-b border-gray-200 mb-6">
             <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab('tasks')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'tasks'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                My Tasks
-              </button>
-              <button
-                onClick={() => setActiveTab('documents')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'documents'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                My Documents
-              </button>
+              
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </nav>
           </div>
           <div className="px-4 py-6 sm:px-0">
@@ -186,7 +230,7 @@ const EmployeeDashboard = () => {
                 </div>
               </div>
             </div>
-          ) : (
+          ) : activeTab === 'documents' ? (
             <div className="bg-white shadow rounded-lg p-6">
                 <h2 className="text-xl font-semibold mb-6">My Documents</h2>
                 <DocumentList 
@@ -204,7 +248,74 @@ const EmployeeDashboard = () => {
                   hideColumns={['employee']}
                 />
               </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <div className="space-y-6">
+                
+                  <div className="bg-white shadow rounded-lg p-6">
+                    <h2 className="text-xl font-semibold mb-4">New Leave Request</h2>
+                    <LeaveRequestForm 
+                      onSuccess={fetchLeaveRequests}
+                      balance={leaveBalance}
+                    />
+                  </div>
+
+                
+                  <div className="bg-white shadow rounded-lg p-6">
+                    <h2 className="text-xl font-semibold mb-4">My Requests</h2>
+                    {leaveRequests.length === 0 ? (
+                      <p className="text-gray-600">No leave requests submitted yet.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {leaveRequests.map((req, index) => (
+                          <div key={index} className="border p-3 rounded-md">
+                            <p className="text-sm text-gray-600">
+                              Type: {leaveTypes.find(t => t.id === req.leave_type)?.name || 'Unknown'}
+                            </p>
+                            <p className="text-sm">
+                              From: {new Date(req.start_date).toLocaleDateString()} To: {new Date(req.end_date).toLocaleDateString()}
+                            </p>
+                            <p className="text-sm">Reason: {req.reason}</p>
+                            <p className={`text-sm font-semibold ${
+                              req.status === 'approved' ? 'text-green-600' :
+                              req.status === 'rejected' ? 'text-red-600' :
+                              'text-yellow-600'
+                            }`}>
+                              Status: {req.status}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                  
+                
+                <div className="space-y-6">
+                
+                  <div className="bg-white shadow rounded-lg p-6">
+                    <h2 className="text-xl font-semibold mb-4">Leave Calendar</h2>
+                    <LeaveCalendar userId={user.id} />
+                  </div>
+                  
+                
+                  <div className="bg-white shadow rounded-lg p-6">
+                    <h2 className="text-xl font-semibold mb-4">Leave Balance</h2>
+                    <div className="grid grid-cols-2 gap-4">
+                      {leaveTypes.map(type => (
+                        <div key={type.id} className="p-3 bg-blue-50 rounded-lg">
+                          <p className="text-sm text-gray-600">{type.name}</p>
+                          <p className="text-2xl font-bold">{leaveBalance[type.id] || 0} days</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             )}
+
           </div>
         </div>
       </main>

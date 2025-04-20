@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import DocumentUpload from '../DocumentUpload';
 import DocumentList from '../DocumentList';
+import LeaveApprovalList from '../LeaveApprovalList';
 
 const HRDashboard = () => {
   const [user, setUser] = useState(null);
@@ -104,6 +105,16 @@ const HRDashboard = () => {
               >
                 Document Management
               </button>
+              <button
+                onClick={() => setActiveTab('leaveApproval')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'leaveApproval'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Leave Approval Management
+              </button>
             </nav>
           </div>
 
@@ -150,7 +161,7 @@ const HRDashboard = () => {
                   </table>
                 </div>
               </div>
-            ) : (
+            ) : activeTab === 'documents' ? (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
                 <DocumentUpload 
@@ -179,6 +190,11 @@ const HRDashboard = () => {
                     }}
                   />
                 </div>
+              </div>
+            ) : (
+              <div className="bg-white p-6 rounded-lg shadow">
+                <h2 className="text-xl font-semibold mb-4">Pending Leave Approvals</h2>
+                <LeaveApprovalList employees={employees} />
               </div>
             )}
           </div>
