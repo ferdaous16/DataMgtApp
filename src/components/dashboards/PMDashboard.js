@@ -4,6 +4,9 @@ import DocumentList from '../../components/DocumentList';
 import LeaveRequestForm from '../LeaveRequestForm';
 import LeaveCalendar from '../LeaveCalendar';
 import AddTeamMemberModal from '../AddTeamMemberModal';
+import AnnouncementTab from '../AnnouncementTab';
+import AnnouncementWidget from '../AnnouncementWidget';
+
 
 
 const PMDashboard = () => {
@@ -374,6 +377,7 @@ const PMDashboard = () => {
 
   const tabs = [
     { id: 'projectOverview', label: 'Project Overview' },
+    { id: 'announcements', label: 'Announcements' },
     { id: 'documents', label: 'My Documents' },
     { id: 'leaves', label: 'Leave Management' }
   ];
@@ -425,6 +429,9 @@ const PMDashboard = () => {
           <div className="px-4 py-6 sm:px-0">
             {activeTab === 'projectOverview' ? (
               <div className="p-6">
+                 <div className="mb-6">
+                  <AnnouncementWidget limit={3} />
+                </div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold">My Projects & Tasks</h2>
                   <button 
@@ -778,6 +785,8 @@ const PMDashboard = () => {
                 )}
               </div>
 
+            ) : activeTab === 'announcements' ? (
+              <AnnouncementTab userRole={user?.role} />
             ) : activeTab === 'documents' ? (
               <div className="bg-white shadow rounded-lg p-6">
                 <h2 className="text-xl font-semibold mb-6">My Documents</h2>

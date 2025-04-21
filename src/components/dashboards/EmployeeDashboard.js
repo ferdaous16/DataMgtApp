@@ -4,6 +4,8 @@ import DocumentList from '../DocumentList';
 import { useAuth } from '../../context/AuthContext';
 import LeaveRequestForm from '../LeaveRequestForm';
 import LeaveCalendar from '../LeaveCalendar';
+import AnnouncementWidget from '../AnnouncementWidget';
+import AnnouncementList from '../AnnouncementList';
 
 const EmployeeDashboard = () => {
   const [user, setUser] = useState(null);
@@ -59,7 +61,6 @@ const EmployeeDashboard = () => {
 
   const fetchProjects = async () => {
     try {
-      // Get projects where the user is a member
       const { data: memberProjects, error: memberError } = await supabase
         .from('project_members')
         .select('project_id')
@@ -87,7 +88,6 @@ const EmployeeDashboard = () => {
 
   const fetchTasks = async () => {
     try {
-      // Get tasks assigned to the user
       const { data, error } = await supabase
         .from('tasks')
         .select(`
@@ -139,7 +139,6 @@ const EmployeeDashboard = () => {
       
       if (error) throw error;
       
-      // Update tasks state after successful DB update
       setTasks(tasks.map(task => 
         task.id === taskId ? { ...task, status: newStatus } : task
       ));
@@ -150,6 +149,7 @@ const EmployeeDashboard = () => {
 
   const tabs = [
     { id: 'tasks', label: 'My Tasks' },
+    { id: 'announcements', label: 'Announcements' },
     { id: 'projects', label: 'My Projects' },
     { id: 'documents', label: 'My Documents' },
     { id: 'leaves', label: 'Leave Management' }
@@ -244,6 +244,9 @@ const EmployeeDashboard = () => {
           <div className="px-4 py-6 sm:px-0">
             {activeTab === 'tasks' && (
               <div className="bg-white shadow rounded-lg p-6">
+                <div className="mb-6">
+                  <AnnouncementWidget limit={3} />
+                </div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">My Tasks</h2>
                   <div>
@@ -376,7 +379,9 @@ const EmployeeDashboard = () => {
                 </div>
               </div>
             )}
-
+            {activeTab === 'announcements' && (
+              <AnnouncementList userRole="Employee" />
+            )}
             {activeTab === 'projects' && (
               <div className="bg-white shadow rounded-lg p-6">
                 <h2 className="text-xl font-semibold mb-6">My Projects</h2>
