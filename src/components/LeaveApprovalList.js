@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { updateLeaveBalance } from '../services/leaveService';
+import { NotificationAPI } from '../services/notificationAPI';
 
 
 const LeaveApprovalList = () => {
@@ -17,7 +18,7 @@ const LeaveApprovalList = () => {
       if (error) console.error(error);
       else setRequests(data || []);
       const enrichedRequests = await Promise.all(data.map(async (request) => {
-        const { data: balanceData, error: balanceError } = await supabase
+        const { data: balanceData } = await supabase
           .from('leave_balances')
           .select('balance')
           .eq('employee_id', request.employee_id)
@@ -35,25 +36,46 @@ const LeaveApprovalList = () => {
     useEffect(() => {
       fetchRequests();
     }, []);
-    
+    const createLeaveResponseNotification = async (leaveRequestId, hrManagerId, employeeId, status) => {
+      try {
+        await NotificationAPI.createNotification(
+          employeeId,
+          hrManagerId,
+          'leave_response',
+          `Your leave request has been ${status}`,
+          leaveRequestId,
+          'leave_request'
+        );
+      } catch (error) {
+        console.error('Error creating leave response notification:', error);
+      }
+    };
     const handleDecision = async (requestId, approved) => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('User not logged in');
     
-        const { error } = await supabase
+        const { data: updatedRequest, error } = await supabase
           .from('leave_requests')
           .update({
             status: approved ? 'approved' : 'rejected',
             approved_by: user.id
           })
-          .eq('id', requestId);
+          .eq('id', requestId)
+          .select()
+          .single();
   
         if (error) throw error;
         
         if (approved) {
           await updateLeaveBalance(requestId);
         }
+        await createLeaveResponseNotification(
+          requestId,
+          user.id,
+          updatedRequest.employee_id,
+          approved ? 'approved' : 'rejected'
+        );
         await fetchRequests();
       } catch (err) {
         console.error('Approval error:', err);

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../supabaseClient';
 
 const AnnouncementForm = ({ onSuccess }) => {
+  
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -19,14 +20,13 @@ const AnnouncementForm = ({ onSuccess }) => {
       [name]: type === 'checkbox' ? checked : value
     });
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       
       const announcementData = {
@@ -35,14 +35,13 @@ const AnnouncementForm = ({ onSuccess }) => {
         published_at: new Date().toISOString()
       };
       
-      // Insert announcement
       const { error } = await supabase
         .from('announcements')
         .insert(announcementData);
+    
         
       if (error) throw error;
       
-      // Reset form
       setFormData({
         title: '',
         content: '',
@@ -50,8 +49,7 @@ const AnnouncementForm = ({ onSuccess }) => {
         important: false,
         expires_at: ''
       });
-      
-      // Call success callback
+
       if (onSuccess) onSuccess();
       
     } catch (error) {
@@ -79,7 +77,7 @@ const AnnouncementForm = ({ onSuccess }) => {
           value={formData.title}
           onChange={handleChange}
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border border-black shadow-sm focus:border-black focus:ring-black"
         />
       </div>
       
@@ -92,7 +90,7 @@ const AnnouncementForm = ({ onSuccess }) => {
           onChange={handleChange}
           required
           rows="5"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border border-black shadow-sm focus:border-black focus:ring-black"
         />
       </div>
       
@@ -103,7 +101,7 @@ const AnnouncementForm = ({ onSuccess }) => {
           name="category"
           value={formData.category}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          className="mt-1 block w-full rounded-md border border-black shadow-sm focus:border-black focus:ring-black"
         >
           <option value="general">General</option>
           <option value="hr">HR</option>

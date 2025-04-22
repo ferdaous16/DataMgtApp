@@ -7,7 +7,6 @@ const AnnouncementTab = ({ userRole }) => {
   const canPost = userRole === 'HR Manager' || userRole === 'Project Manager';
   
   const handleAnnouncementPosted = () => {
-    // Force refresh the announcement list
     setRefreshKey(prevKey => prevKey + 1);
   };
   

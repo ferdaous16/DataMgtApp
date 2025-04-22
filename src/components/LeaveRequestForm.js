@@ -49,7 +49,49 @@ const LeaveRequestForm = ({ onSuccess }) => {
     
       fetchUserAndLeaveData();
     }, []);
-  
+    const createLeaveRequestNotification = async (leaveRequestId, employeeId) => {
+      try {
+        const { data: leaveRequest } = await supabase
+          .from('leave_requests')
+          .select('start_date, end_date')
+          .eq('id', leaveRequestId)
+          .single();
+        
+        if (leaveRequest) {
+          // Find HR managers to notify
+          const { data: hrManagers } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'HR Manager');
+          
+          if (hrManagers && hrManagers.length > 0) {
+            // Get employee info
+            const { data: employee } = await supabase
+              .from('profiles')
+              .select('first_name, last_name')
+              .eq('id', employeeId)
+              .single();
+            
+            const startDate = new Date(leaveRequest.start_date).toLocaleDateString();
+            const endDate = new Date(leaveRequest.end_date).toLocaleDateString();
+            
+            // Create notifications for all HR managers
+            const notifications = hrManagers.map(manager => ({
+              recipient_id: manager.id,
+              sender_id: employeeId,
+              type: 'leave_request',
+              content: `${employee.first_name} ${employee.last_name} has requested leave from ${startDate} to ${endDate}`,
+              reference_id: leaveRequestId,
+              reference_type: 'leave_request'
+            }));
+            
+            await supabase.from('notifications').insert(notifications);
+          }
+        }
+      } catch (error) {
+        console.error('Error creating leave request notification:', error);
+      }
+    };
     const handleSubmit = async (e) => {
       e.preventDefault();
       setError('');
@@ -68,9 +110,12 @@ const LeaveRequestForm = ({ onSuccess }) => {
             end_date: formData.endDate,
             leave_type: formData.leave_type,
             reason: formData.reason
-          }]);
-  
+          }])
+          .select()
+          .single();
+        
         if (error) throw error;
+        await createLeaveRequestNotification(data.id, user.id);
         if (onSuccess) onSuccess();
         alert('Request submitted successfully!');
         setFormData({

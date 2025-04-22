@@ -5,12 +5,16 @@ import DocumentList from '../DocumentList';
 import LeaveApprovalList from '../LeaveApprovalList';
 import AnnouncementTab from '../AnnouncementTab';
 import AnnouncementWidget from '../AnnouncementWidget';
+import ChatModal from '../ChatSystem/ChatModal';
+import NotificationCenter from '../NotificationCenter/NotificationCenter';
+import NotificationBadge from '../NotificationSystem/NotificationBadge';
 
 const HRDashboard = () => {
   const [user, setUser] = useState(null);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('employees');
+  const [showChatModal, setShowChatModal] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -50,7 +54,7 @@ const HRDashboard = () => {
     } catch (error) {
       console.error('Error fetching employees:', error);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false);
     }
   };
 
@@ -72,6 +76,19 @@ const HRDashboard = () => {
               <p className="text-sm text-gray-500">Welcome,</p>
               <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
             </div>
+            <NotificationCenter 
+              userId={user?.id}
+              navigateToConversation={(conversationId) => {
+                setShowChatModal(true);
+              }}
+            />
+            <button
+              onClick={() => setShowChatModal(true)}
+              className="relative bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
+            >
+              Messages
+              <NotificationBadge userId={user?.id} type="messages" />
+            </button>
             <button
               onClick={handleSignOut}
               className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600"
@@ -219,7 +236,16 @@ const HRDashboard = () => {
           </div>
         </div>
       </main>
+      {showChatModal && (
+      <ChatModal
+        isOpen={showChatModal}
+        onClose={() => setShowChatModal(false)}
+        userId={user?.id}
+        employees={employees}
+      />
+    )}
     </div>
+    
   );
 };
 

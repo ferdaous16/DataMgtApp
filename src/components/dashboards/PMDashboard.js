@@ -6,6 +6,10 @@ import LeaveCalendar from '../LeaveCalendar';
 import AddTeamMemberModal from '../AddTeamMemberModal';
 import AnnouncementTab from '../AnnouncementTab';
 import AnnouncementWidget from '../AnnouncementWidget';
+import ChatModal from '../ChatSystem/ChatModal';
+import NotificationCenter from '../NotificationCenter/NotificationCenter';
+import NotificationBadge from '../NotificationSystem/NotificationBadge';
+import { NotificationAPI } from '../../services/notificationAPI';
 
 
 
@@ -27,6 +31,7 @@ const PMDashboard = () => {
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+  const [showChatModal, setShowChatModal] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -311,7 +316,12 @@ const PMDashboard = () => {
         .eq('id', editingTaskId);
 
       if (error) throw error;
-      
+    
+      if (taskForm.assigned_to) {
+        const managerId = user.id;
+        const employeeId = taskForm.assigned_to;
+        await createTaskAssignmentNotification(editingTaskId, managerId, employeeId);
+      }
       setEditingTaskId(null);
       const projectId = taskForm.project_id;
       if (projectId) {
@@ -321,7 +331,28 @@ const PMDashboard = () => {
       console.error('Error updating task:', error);
     }
   };
-
+  const createTaskAssignmentNotification = async (taskId, managerId, employeeId) => {
+    try {
+      const { data: task } = await supabase
+        .from('tasks')
+        .select('title')
+        .eq('id', taskId)
+        .single();
+      
+      if (task) {
+        await NotificationAPI.createNotification(
+          employeeId,
+          managerId,
+          'task',
+          `You've been assigned a new task: ${task.title}`,
+          null,
+          'task'
+        );
+      }
+    } catch (error) {
+      console.error('Error creating task notification:', error);
+    }
+  };
   const handleAddTeamMember = async (projectId) => {
     setSelectedProjectId(projectId);
     setShowMemberModal(true);
@@ -396,6 +427,20 @@ const PMDashboard = () => {
               <p className="text-sm text-gray-500">Welcome,</p>
               <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
             </div>
+            <NotificationCenter 
+              userId={user?.id}
+              navigateToConversation={(conversationId) => {
+                setShowChatModal(true);
+                // We'll need to pass this to the ChatModal
+              }}
+            />
+            <button
+              onClick={() => setShowChatModal(true)}
+              className="relative bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
+            >
+              Messages
+              <NotificationBadge userId={user?.id} type="messages" />
+            </button>
             <button
               onClick={handleSignOut}
               className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600"
@@ -689,11 +734,14 @@ const PMDashboard = () => {
                                           className="border rounded p-2 w-full"
                                         >
                                           <option value="">-- Not Assigned --</option>
-                                          {employees.map(employee => (
-                                            <option key={employee.id} value={employee.id}>
-                                              {employee.first_name} {employee.last_name}
-                                            </option>
+                                          {employees
+                                            .filter(employee => employee.role === 'Employee')
+                                            .map(employee => (
+                                              <option key={employee.id} value={employee.id}>
+                                                {employee.first_name} {employee.last_name}
+                                              </option>
                                           ))}
+
                                         </select>
                                       </div>
                                     </div>
@@ -870,6 +918,14 @@ const PMDashboard = () => {
           </div>
         </div>
       </main>
+      {showChatModal && (
+        <ChatModal
+          isOpen={showChatModal}
+          onClose={() => setShowChatModal(false)}
+          userId={user?.id}
+          employees={employees}
+        />
+      )}
     </div>
   );
 };

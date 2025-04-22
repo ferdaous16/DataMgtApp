@@ -6,6 +6,10 @@ import LeaveRequestForm from '../LeaveRequestForm';
 import LeaveCalendar from '../LeaveCalendar';
 import AnnouncementWidget from '../AnnouncementWidget';
 import AnnouncementList from '../AnnouncementList';
+import ChatModal from '../ChatSystem/ChatModal';
+import NotificationCenter from '../NotificationCenter/NotificationCenter';
+import NotificationBadge from '../NotificationSystem/NotificationBadge';
+
 
 const EmployeeDashboard = () => {
   const [user, setUser] = useState(null);
@@ -17,6 +21,22 @@ const EmployeeDashboard = () => {
   const [leaveBalance, setLeaveBalance] = useState({});
   const [leaveTypes, setLeaveTypes] = useState([]);
   const [selectedProject, setSelectedProject] = useState('all');
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [employees, setEmployees] = useState([]);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const { data, error } = await supabase.from('profiles').select('id, first_name, last_name');
+        if (error) throw error;
+        setEmployees(data || []);
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
 
   useEffect(() => {
     fetchUserData();
@@ -197,6 +217,10 @@ const EmployeeDashboard = () => {
   };
 
   const metrics = getTaskMetrics();
+  
+  // Handle leave request notifications
+
+
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -212,6 +236,20 @@ const EmployeeDashboard = () => {
               <p className="text-sm text-gray-500">Welcome,</p>
               <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
             </div>
+            <NotificationCenter 
+              userId={user?.id}
+              navigateToConversation={(conversationId) => {
+                setShowChatModal(true);
+                // We'll need to pass this to the ChatModal
+              }}
+            />
+            <button
+              onClick={() => setShowChatModal(true)}
+              className="relative bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
+            >
+              Messages
+              <NotificationBadge userId={user?.id} type="messages" />
+            </button>
             <button
               onClick={handleSignOut}
               className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600"
@@ -525,6 +563,14 @@ const EmployeeDashboard = () => {
           </div>
         </div>
       </main>
+      {showChatModal && (
+        <ChatModal
+          isOpen={showChatModal}
+          onClose={() => setShowChatModal(false)}
+          userId={user?.id}
+          employees={employees}
+        />
+      )}
     </div>
   );
 };
