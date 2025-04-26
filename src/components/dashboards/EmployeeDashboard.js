@@ -9,6 +9,8 @@ import AnnouncementList from '../AnnouncementList';
 import ChatModal from '../ChatSystem/ChatModal';
 import NotificationCenter from '../NotificationCenter/NotificationCenter';
 import NotificationBadge from '../NotificationSystem/NotificationBadge';
+import mainLogo from'../../assets/logo.png';
+
 
 
 const EmployeeDashboard = () => {
@@ -230,7 +232,7 @@ const EmployeeDashboard = () => {
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Employee Dashboard</h1>
+          <img src={mainLogo} class='App-logo' alt='FlowDesk Logo' />
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="text-sm text-gray-500">Welcome,</p>
