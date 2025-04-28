@@ -5,17 +5,14 @@ import DocumentList from '../DocumentList';
 import LeaveApprovalList from '../LeaveApprovalList';
 import AnnouncementTab from '../AnnouncementTab';
 import AnnouncementWidget from '../AnnouncementWidget';
-import ChatModal from '../ChatSystem/ChatModal';
-import NotificationCenter from '../NotificationCenter/NotificationCenter';
-import NotificationBadge from '../NotificationSystem/NotificationBadge';
-import mainLogo from'../../assets/logo.png';
+import DashboardHeader from '../DashboardHeader';
+
 
 const HRDashboard = () => {
   const [user, setUser] = useState(null);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('employees');
-  const [showChatModal, setShowChatModal] = useState(false);
 
   useEffect(() => {
     fetchUserData();
@@ -59,46 +56,13 @@ const HRDashboard = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
-
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-          <img src={mainLogo} class='App-logo' alt='FlowDesk Logo' />
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Welcome,</p>
-              <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
-            </div>
-            <NotificationCenter 
-              userId={user?.id}
-              navigateToConversation={(conversationId) => {
-                setShowChatModal(true);
-              }}
-            />
-            <button
-              onClick={() => setShowChatModal(true)}
-              className="relative bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
-            >
-              Messages
-              <NotificationBadge userId={user?.id} type="messages" />
-            </button>
-            <button
-              onClick={handleSignOut}
-              className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600"
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader user={user} employees={employees} ></DashboardHeader>
 
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
@@ -237,14 +201,6 @@ const HRDashboard = () => {
           </div>
         </div>
       </main>
-      {showChatModal && (
-      <ChatModal
-        isOpen={showChatModal}
-        onClose={() => setShowChatModal(false)}
-        userId={user?.id}
-        employees={employees}
-      />
-    )}
     </div>
     
   );
