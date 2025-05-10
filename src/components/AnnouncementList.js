@@ -98,7 +98,9 @@ const AnnouncementList = ({ userRole, filter = {}, limit = 10 }) => {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
+    date.setUTCHours(23, 59, 0, 0);
     return date.toLocaleDateString(undefined, { 
+      timeZone: 'UTC',
       year: 'numeric', 
       month: 'short', 
       day: 'numeric',
