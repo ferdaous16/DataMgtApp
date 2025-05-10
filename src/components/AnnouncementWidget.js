@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { set } from 'date-fns';
 
-const AnnouncementWidget = ({ limit = 3 }) => {
+const AnnouncementWidget = ({ limit = 3, onViewAll }) => {
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hasUnread, setHasUnread] = useState(false);
+  const [activeTab, setActiveTab] = useState('announcements');
   
   useEffect(() => {
     fetchLatestAnnouncements();
@@ -99,15 +101,25 @@ const AnnouncementWidget = ({ limit = 3 }) => {
             </span>
           )}
         </h3>
-        <a href="#" className="text-sm text-blue-600 hover:text-blue-800" onClick={(e) => {
+        <a href="#" className="text-sm text-blue-600 hover:text-blue-800"
+        onClick={(e) => {
           e.preventDefault();
-          // This function would be implemented in the parent component to switch to the announcements tab
-          if (typeof window !== 'undefined' && window.switchToAnnouncementsTab) {
-            window.switchToAnnouncementsTab();
+          if (onViewAll) {
+            onViewAll();
           }
         }}>
           View All
         </a>
+        {/* <button
+                onClick={() => setActiveTab('announcements')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'announcements'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Announcements
+        </button> */}
       </div>
       
       {announcements.length === 0 ? (
@@ -119,18 +131,29 @@ const AnnouncementWidget = ({ limit = 3 }) => {
               key={announcement.id} 
               className={`p-3 rounded-md ${announcement.important ? 'bg-red-50' : 'bg-gray-50'}`}
             >
-              <h4 className={`text-sm font-medium ${announcement.important ? 'text-red-800' : 'text-gray-900'}`}>
-                {announcement.important && (
-                  <span className="inline-block mr-1 w-2 h-2 rounded-full bg-red-500"></span>
+              <div className="flex">
+                {announcement.photo_url && (
+                  <img
+                    src={announcement.photo_url}
+                    alt={announcement.title}
+                    className="w-16 h-16 object-cover rounded-md mr-3 flex-shrink-0"
+                  />
                 )}
-                {announcement.title}
-              </h4>
-              <p className="mt-1 text-xs text-gray-500">
-                {new Date(announcement.published_at).toLocaleDateString()}
-              </p>
-              <p className="mt-1 text-sm text-gray-700 line-clamp-2">
-                {announcement.content}
-              </p>
+                <div className="flex-1">
+                  <h4 className={`text-sm font-medium ${announcement.important ? 'text-red-800' : 'text-gray-900'}`}>
+                    {announcement.important && (
+                      <span className="inline-block mr-1 w-2 h-2 rounded-full bg-red-500"></span>
+                    )}
+                    {announcement.title}
+                  </h4>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {new Date(announcement.published_at).toLocaleDateString()}
+                  </p>
+                  <p className="mt-1 text-sm text-gray-700 line-clamp-2">
+                    {announcement.content}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
         </div>

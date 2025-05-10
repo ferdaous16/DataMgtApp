@@ -283,7 +283,9 @@ const EmployeeDashboard = () => {
             {activeTab === 'tasks' && (
               <div className="bg-white shadow rounded-lg p-6">
                 <div className="mb-6">
-                  <AnnouncementWidget limit={3} />
+                  <AnnouncementWidget limit={3}
+                    onViewAll={() => setActiveTab('announcements')}
+                  />
                 </div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">My Tasks</h2>

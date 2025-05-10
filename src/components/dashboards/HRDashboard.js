@@ -152,7 +152,9 @@ const HRDashboard = () => {
               <div className="bg-white shadow rounded-lg p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                   <div className="lg:col-span-3">
-                    <AnnouncementWidget limit={3} />
+                    <AnnouncementWidget limit={3}
+                    onViewAll={() => setActiveTab('announcements')}
+                    />
                   </div>
                 </div>
                 <h2 className="text-xl font-semibold mb-6">Employee Directory</h2>
