@@ -40,14 +40,14 @@ const PMDashboard = () => {
   const fetchUserData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
-        
+
         if (error) throw error;
         setUser(data);
       }
@@ -60,7 +60,7 @@ const PMDashboard = () => {
 
   const fetchProjects = async () => {
     if (!user) return;
-    
+
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -68,9 +68,9 @@ const PMDashboard = () => {
         .eq('manager_id', user.id);
 
       if (error) throw error;
-      
+
       setProjects(data || []);
-      
+
       if (data && data.length > 0) {
         fetchTasksForProjects(data.map(p => p.id));
         fetchTeamMembersForProjects(data.map(p => p.id));
@@ -82,7 +82,7 @@ const PMDashboard = () => {
 
   const fetchTasksForProjects = async (projectIds) => {
     if (!projectIds.length) return;
-    
+
     try {
       const { data, error } = await supabase
         .from('tasks')
@@ -90,19 +90,19 @@ const PMDashboard = () => {
         .in('project_id', projectIds);
 
       if (error) throw error;
-      
+
       const tasksWithEmployees = [...data];
-      
+
       const employeeIds = data
         .map(task => task.assigned_to)
         .filter(id => id);
-      
+
       if (employeeIds.length) {
         const { data: employeeData } = await supabase
           .from('profiles')
           .select('id, first_name, last_name')
           .in('id', employeeIds);
-          
+
         if (employeeData) {
           tasksWithEmployees.forEach(task => {
             if (task.assigned_to) {
@@ -114,7 +114,7 @@ const PMDashboard = () => {
           });
         }
       }
-      
+
       setTasks(tasksWithEmployees);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -123,26 +123,26 @@ const PMDashboard = () => {
 
   const fetchTeamMembersForProjects = async (projectIds) => {
     if (!projectIds.length) return;
-    
+
     try {
       const { data: memberData, error } = await supabase
         .from('project_members')
         .select('project_id, profile_id')
         .in('project_id', projectIds)
-        .limit(100); 
+        .limit(100);
 
       if (error) throw error;
-      
+
       if (memberData && memberData.length) {
         const profileIds = memberData.map(m => m.profile_id);
-        
+
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('id, first_name, last_name, role')
           .in('id', profileIds);
-          
+
         if (profileError) throw profileError;
-        
+
         const teamMembersWithInfo = memberData.map(member => {
           const profile = profileData.find(p => p.id === member.profile_id);
           return {
@@ -150,7 +150,7 @@ const PMDashboard = () => {
             profile
           };
         });
-        
+
         setTeamMembers(teamMembersWithInfo);
       } else {
         setTeamMembers([]);
@@ -164,16 +164,19 @@ const PMDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, role');
+        .select('id, first_name, last_name, role')
+        .eq('role', 'Employee'); // fetch ONLY regular employees
+      ;
+
 
       if (error) throw error;
-      
+
       setEmployees(data || []);
     } catch (error) {
       console.error('Error fetching employees:', error);
     }
   };
-  
+
   useEffect(() => {
     if (user) {
       fetchProjects();
@@ -186,7 +189,7 @@ const PMDashboard = () => {
       if (user) {
         await Promise.all([
           fetchLeaveRequests(),
-          fetchLeaveBalance(), 
+          fetchLeaveBalance(),
           fetchLeaveTypes()
         ]);
         setLoading(false);
@@ -201,7 +204,7 @@ const PMDashboard = () => {
       description: 'Project description',
       status: 'In Progress',
       start_date: new Date().toISOString().split('T')[0],
-      deadline: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
+      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       manager_id: user.id
     };
 
@@ -212,7 +215,7 @@ const PMDashboard = () => {
         .select();
 
       if (error) throw error;
-      
+
       fetchProjects();
     } catch (error) {
       console.error('Error creating project:', error);
@@ -225,19 +228,19 @@ const PMDashboard = () => {
         .from('tasks')
         .delete()
         .eq('project_id', id);
-      
+
       const { error: membersError } = await supabase
         .from('project_members')
         .delete()
         .eq('project_id', id);
-        
+
       const { error } = await supabase
         .from('projects')
         .delete()
         .eq('id', id);
 
       if (error) throw error;
-      
+
       fetchProjects();
     } catch (error) {
       console.error('Error deleting project:', error);
@@ -246,7 +249,7 @@ const PMDashboard = () => {
 
   const handleEditProject = (project) => {
     setEditingProjectId(project.id);
-    setProjectForm({...project});
+    setProjectForm({ ...project });
   };
 
   const handleUpdateProject = async () => {
@@ -257,7 +260,7 @@ const PMDashboard = () => {
         .eq('id', editingProjectId);
 
       if (error) throw error;
-      
+
       setEditingProjectId(null);
       fetchProjects();
     } catch (error) {
@@ -281,7 +284,7 @@ const PMDashboard = () => {
         .insert(newTask);
 
       if (error) throw error;
-      
+
       fetchTasksForProjects([projectId]);
     } catch (error) {
       console.error('Error creating task:', error);
@@ -296,7 +299,7 @@ const PMDashboard = () => {
         .eq('id', id);
 
       if (error) throw error;
-      
+
       fetchTasksForProjects([projectId]);
     } catch (error) {
       console.error('Error deleting task:', error);
@@ -305,7 +308,7 @@ const PMDashboard = () => {
 
   const handleEditTask = (task) => {
     setEditingTaskId(task.id);
-    setTaskForm({...task});
+    setTaskForm({ ...task });
   };
 
   const handleUpdateTask = async () => {
@@ -316,7 +319,7 @@ const PMDashboard = () => {
         .eq('id', editingTaskId);
 
       if (error) throw error;
-    
+
       if (taskForm.assigned_to) {
         const managerId = user.id;
         const employeeId = taskForm.assigned_to;
@@ -338,7 +341,7 @@ const PMDashboard = () => {
         .select('title')
         .eq('id', taskId)
         .single();
-      
+
       if (task) {
         await NotificationAPI.createNotification(
           employeeId,
@@ -372,12 +375,12 @@ const PMDashboard = () => {
       .select('leave_type, balance')
       .eq('employee_id', user.id)
       .eq('year', new Date().getFullYear());
-    
+
     const balanceMap = {};
     balances?.forEach(entry => {
       balanceMap[entry.leave_type] = entry.balance;
     });
-  
+
     setLeaveBalance(balanceMap);
   };
 
@@ -427,7 +430,7 @@ const PMDashboard = () => {
               <p className="text-sm text-gray-500">Welcome,</p>
               <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
             </div>
-            <NotificationCenter 
+            <NotificationCenter
               userId={user?.id}
               navigateToConversation={(conversationId) => {
                 setShowChatModal(true);
@@ -459,11 +462,10 @@ const PMDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -474,14 +476,14 @@ const PMDashboard = () => {
           <div className="px-4 py-6 sm:px-0">
             {activeTab === 'projectOverview' ? (
               <div className="p-6">
-                 <div className="mb-6">
+                <div className="mb-6">
                   <AnnouncementWidget limit={3}
                     onViewAll={() => setActiveTab('announcements')}
                   />
                 </div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold">My Projects & Tasks</h2>
-                  <button 
+                  <button
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                     onClick={handleCreateProject}
                   >
@@ -549,14 +551,14 @@ const PMDashboard = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <button 
-                              onClick={handleUpdateProject} 
+                            <button
+                              onClick={handleUpdateProject}
                               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                             >
                               Save
                             </button>
-                            <button 
-                              onClick={() => setEditingProjectId(null)} 
+                            <button
+                              onClick={() => setEditingProjectId(null)}
                               className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
                             >
                               Cancel
@@ -571,21 +573,21 @@ const PMDashboard = () => {
                               <p className="text-gray-600 mt-1">{project.description}</p>
                             </div>
                             <div className="flex gap-2">
-                              <button 
-                                onClick={() => handleEditProject(project)} 
+                              <button
+                                onClick={() => handleEditProject(project)}
                                 className="text-blue-500 hover:text-blue-700"
                               >
                                 Edit
                               </button>
-                              <button 
-                                onClick={() => handleDeleteProject(project.id)} 
+                              <button
+                                onClick={() => handleDeleteProject(project.id)}
                                 className="text-red-500 hover:text-red-700"
                               >
                                 Delete
                               </button>
                             </div>
                           </div>
-                          
+
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                             <div className="bg-blue-50 p-3 rounded">
                               <p className="text-sm text-gray-600">Status</p>
@@ -606,12 +608,12 @@ const PMDashboard = () => {
                           </div>
                         </>
                       )}
-      
+
                       {/* Project Team Members */}
                       <div className="mt-6">
                         <div className="flex justify-between items-center mb-2">
                           <h4 className="font-semibold text-lg">Team Members</h4>
-                          <button 
+                          <button
                             className="text-blue-500 text-sm"
                             onClick={() => handleAddTeamMember(project.id)}
                           >
@@ -652,19 +654,19 @@ const PMDashboard = () => {
                         />
                       )}
 
-      
+
                       {/* Tasks for this project */}
                       <div className="mt-6">
                         <div className="flex justify-between items-center mb-4">
                           <h4 className="font-semibold text-lg">Tasks</h4>
-                          <button 
+                          <button
                             onClick={() => handleCreateTask(project.id)}
                             className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
                           >
                             + Add Task
                           </button>
                         </div>
-                        
+
                         {getTasksForProject(project.id).length === 0 ? (
                           <p className="text-gray-500 text-sm">No tasks created for this project yet</p>
                         ) : (
@@ -736,26 +738,28 @@ const PMDashboard = () => {
                                           className="border rounded p-2 w-full"
                                         >
                                           <option value="">-- Not Assigned --</option>
-                                          {employees
-                                            .filter(employee => employee.role === 'Employee')
-                                            .map(employee => (
-                                              <option key={employee.id} value={employee.id}>
-                                                {employee.first_name} {employee.last_name}
+                                          {teamMembers
+                                            .filter(member => member.project_id === taskForm.project_id)
+                                            .map(member => member.profile)
+                                            .filter(profile => profile)
+                                            .map(profile => (
+                                              <option key={profile.id} value={profile.id}>
+                                                {profile.first_name} {profile.last_name}
                                               </option>
-                                          ))}
-
+                                            ))}
                                         </select>
                                       </div>
+
                                     </div>
                                     <div className="flex gap-2">
-                                      <button 
-                                        onClick={handleUpdateTask} 
+                                      <button
+                                        onClick={handleUpdateTask}
                                         className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
                                       >
                                         Save
                                       </button>
-                                      <button 
-                                        onClick={() => setEditingTaskId(null)} 
+                                      <button
+                                        onClick={() => setEditingTaskId(null)}
                                         className="bg-gray-300 text-gray-800 px-3 py-1 rounded text-sm hover:bg-gray-400"
                                       >
                                         Cancel
@@ -770,41 +774,39 @@ const PMDashboard = () => {
                                         <p className="text-gray-600 text-sm mt-1">{task.description}</p>
                                       </div>
                                       <div className="flex gap-2">
-                                        <button 
-                                          onClick={() => handleEditTask(task)} 
+                                        <button
+                                          onClick={() => handleEditTask(task)}
                                           className="text-blue-500 hover:text-blue-700 text-sm"
                                         >
                                           Edit
                                         </button>
-                                        <button 
-                                          onClick={() => handleDeleteTask(task.id, project.id)} 
+                                        <button
+                                          onClick={() => handleDeleteTask(task.id, project.id)}
                                           className="text-red-500 hover:text-red-700 text-sm"
                                         >
                                           Delete
                                         </button>
                                       </div>
                                     </div>
-                                    
+
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
                                       <div>
                                         <p className="text-xs text-gray-500">Status</p>
-                                        <p className={`text-sm font-medium capitalize ${
-                                          task.status === 'completed' ? 'text-green-600' :
-                                          task.status === 'blocked' ? 'text-red-600' :
-                                          task.status === 'in_progress' ? 'text-blue-600' :
-                                          'text-gray-600'
-                                        }`}>
+                                        <p className={`text-sm font-medium capitalize ${task.status === 'completed' ? 'text-green-600' :
+                                            task.status === 'blocked' ? 'text-red-600' :
+                                              task.status === 'in_progress' ? 'text-blue-600' :
+                                                'text-gray-600'
+                                          }`}>
                                           {task.status || 'Not set'}
                                         </p>
                                       </div>
                                       <div>
                                         <p className="text-xs text-gray-500">Priority</p>
-                                        <p className={`text-sm font-medium capitalize ${
-                                          task.priority === 'urgent' ? 'text-red-600' :
-                                          task.priority === 'high' ? 'text-orange-600' :
-                                          task.priority === 'medium' ? 'text-yellow-600' :
-                                          'text-green-600'
-                                        }`}>
+                                        <p className={`text-sm font-medium capitalize ${task.priority === 'urgent' ? 'text-red-600' :
+                                            task.priority === 'high' ? 'text-orange-600' :
+                                              task.priority === 'medium' ? 'text-yellow-600' :
+                                                'text-green-600'
+                                          }`}>
                                           {task.priority || 'Not set'}
                                         </p>
                                       </div>
@@ -862,7 +864,7 @@ const PMDashboard = () => {
                 <div className="space-y-6">
                   <div className="bg-white shadow rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">New Leave Request</h2>
-                    <LeaveRequestForm 
+                    <LeaveRequestForm
                       onSuccess={fetchLeaveRequests}
                       balance={leaveBalance}
                     />
@@ -883,11 +885,10 @@ const PMDashboard = () => {
                               From: {new Date(req.start_date).toLocaleDateString()} To: {new Date(req.end_date).toLocaleDateString()}
                             </p>
                             <p className="text-sm">Reason: {req.reason}</p>
-                            <p className={`text-sm font-semibold ${
-                              req.status === 'approved' ? 'text-green-600' :
-                              req.status === 'rejected' ? 'text-red-600' :
-                              'text-yellow-600'
-                            }`}>
+                            <p className={`text-sm font-semibold ${req.status === 'approved' ? 'text-green-600' :
+                                req.status === 'rejected' ? 'text-red-600' :
+                                  'text-yellow-600'
+                              }`}>
                               Status: {req.status}
                             </p>
                           </div>
@@ -896,13 +897,13 @@ const PMDashboard = () => {
                     )}
                   </div>
                 </div>
-                  
+
                 <div className="space-y-6">
                   <div className="bg-white shadow rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">Leave Calendar</h2>
                     <LeaveCalendar userId={user.id} />
                   </div>
-                  
+
                   <div className="bg-white shadow rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">Leave Balance</h2>
                     <div className="grid grid-cols-2 gap-4">
