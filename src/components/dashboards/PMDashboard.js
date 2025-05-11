@@ -7,8 +7,8 @@ import AddTeamMemberModal from '../AddTeamMemberModal';
 import AnnouncementTab from '../AnnouncementTab';
 import AnnouncementWidget from '../AnnouncementWidget';
 import { NotificationAPI } from '../../services/notificationAPI';
-
-import DashboardHeader from '../DashboardHeader';
+import NotificationCenter from '../NotificationCenter/NotificationCenter';
+import NotificationBadge from '../NotificationSystem/NotificationBadge';
 
 
 const PMDashboard = () => {
@@ -29,7 +29,7 @@ const PMDashboard = () => {
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
-
+  const [showChatModal, setShowChatModal] = useState(false);
   const [dateError, setDateError] = useState("");
   const [taskDateError, setTaskDateError] = useState("");
   useEffect(() => {
