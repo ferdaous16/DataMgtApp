@@ -9,6 +9,7 @@ import HRDashboard from './components/dashboards/HRDashboard';
 import PMDashboard from './components/dashboards/PMDashboard';
 import EmployeeDashboard from './components/dashboards/EmployeeDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import './App.css'
 
 function App() {
   const [session, setSession] = useState(null);

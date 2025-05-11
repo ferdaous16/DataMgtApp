@@ -6,9 +6,8 @@ import LeaveRequestForm from '../LeaveRequestForm';
 import LeaveCalendar from '../LeaveCalendar';
 import AnnouncementWidget from '../AnnouncementWidget';
 import AnnouncementList from '../AnnouncementList';
-import ChatModal from '../ChatSystem/ChatModal';
-import NotificationCenter from '../NotificationCenter/NotificationCenter';
-import NotificationBadge from '../NotificationSystem/NotificationBadge';
+import DashboardHeader from '../DashboardHeader';
+
 
 
 const EmployeeDashboard = () => {
@@ -21,7 +20,7 @@ const EmployeeDashboard = () => {
   const [leaveBalance, setLeaveBalance] = useState({});
   const [leaveTypes, setLeaveTypes] = useState([]);
   const [selectedProject, setSelectedProject] = useState('all');
-  const [showChatModal, setShowChatModal] = useState(false);
+  // const [showChatModal, setShowChatModal] = useState(false);
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
@@ -259,7 +258,6 @@ const EmployeeDashboard = () => {
           </div>
         </div>
       </header>
-
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200 mb-6">
@@ -561,14 +559,6 @@ const EmployeeDashboard = () => {
           </div>
         </div>
       </main>
-      {showChatModal && (
-        <ChatModal
-          isOpen={showChatModal}
-          onClose={() => setShowChatModal(false)}
-          userId={user?.id}
-          employees={employees}
-        />
-      )}
     </div>
   );
 };

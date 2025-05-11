@@ -6,11 +6,9 @@ import LeaveCalendar from '../LeaveCalendar';
 import AddTeamMemberModal from '../AddTeamMemberModal';
 import AnnouncementTab from '../AnnouncementTab';
 import AnnouncementWidget from '../AnnouncementWidget';
-import ChatModal from '../ChatSystem/ChatModal';
-import NotificationCenter from '../NotificationCenter/NotificationCenter';
-import NotificationBadge from '../NotificationSystem/NotificationBadge';
 import { NotificationAPI } from '../../services/notificationAPI';
 
+import DashboardHeader from '../DashboardHeader';
 
 
 const PMDashboard = () => {
@@ -31,7 +29,6 @@ const PMDashboard = () => {
   const [showMemberModal, setShowMemberModal] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
-  const [showChatModal, setShowChatModal] = useState(false);
 
   const [dateError, setDateError] = useState("");
   const [taskDateError, setTaskDateError] = useState("");
@@ -436,7 +433,6 @@ const PMDashboard = () => {
     if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString();
   };
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
@@ -461,7 +457,6 @@ const PMDashboard = () => {
 
     return { available: true };
   };
-
 
   const tabs = [
     { id: 'projectOverview', label: 'Project Overview' },
@@ -507,7 +502,6 @@ const PMDashboard = () => {
           </div>
         </div>
       </header>
-
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200 mb-6">
@@ -1036,14 +1030,6 @@ const PMDashboard = () => {
           </div>
         </div>
       </main>
-      {showChatModal && (
-        <ChatModal
-          isOpen={showChatModal}
-          onClose={() => setShowChatModal(false)}
-          userId={user?.id}
-          employees={employees}
-        />
-      )}
     </div>
   );
 };
