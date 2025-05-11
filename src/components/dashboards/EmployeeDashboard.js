@@ -42,14 +42,14 @@ const EmployeeDashboard = () => {
   const fetchUserData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (user) {
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
-        
+
         if (error) throw error;
         setUser(data);
       }
@@ -67,7 +67,7 @@ const EmployeeDashboard = () => {
           fetchProjects(),
           fetchTasks(),
           fetchLeaveRequests(),
-          fetchLeaveBalance(), 
+          fetchLeaveBalance(),
           fetchLeaveTypes()
         ]);
         setLoading(false);
@@ -82,17 +82,17 @@ const EmployeeDashboard = () => {
         .from('project_members')
         .select('project_id')
         .eq('profile_id', user.id);
-      
+
       if (memberError) throw memberError;
-      
+
       if (memberProjects && memberProjects.length > 0) {
         const projectIds = memberProjects.map(pm => pm.project_id);
-        
+
         const { data: projectData, error: projectError } = await supabase
           .from('projects')
           .select('*, profiles:manager_id(first_name, last_name)')
           .in('id', projectIds);
-        
+
         if (projectError) throw projectError;
         setProjects(projectData || []);
       } else {
@@ -112,7 +112,7 @@ const EmployeeDashboard = () => {
           projects:project_id(name, status)
         `)
         .eq('assigned_to', user.id);
-      
+
       if (error) throw error;
       setTasks(data || []);
     } catch (error) {
@@ -138,7 +138,7 @@ const EmployeeDashboard = () => {
     balances?.forEach(entry => {
       balanceMap[entry.leave_type] = entry.balance;
     });
-  
+
     setLeaveBalance(balanceMap);
   };
 
@@ -153,10 +153,10 @@ const EmployeeDashboard = () => {
         .from('tasks')
         .update({ status: newStatus, updated_at: new Date().toISOString() })
         .eq('id', taskId);
-      
+
       if (error) throw error;
-      
-      setTasks(tasks.map(task => 
+
+      setTasks(tasks.map(task =>
         task.id === taskId ? { ...task, status: newStatus } : task
       ));
     } catch (error) {
@@ -176,8 +176,8 @@ const EmployeeDashboard = () => {
     await supabase.auth.signOut();
   };
 
-  const filteredTasks = selectedProject === 'all' 
-    ? tasks 
+  const filteredTasks = selectedProject === 'all'
+    ? tasks
     : tasks.filter(task => task.project_id.toString() === selectedProject);
 
   const getTaskMetrics = () => {
@@ -201,8 +201,8 @@ const EmployeeDashboard = () => {
         return completedDate <= dueDate;
       }).length;
     }
-    const onTimePercentage = completedTasks.length > 0 
-      ? Math.round((onTimeCount / completedTasks.length) * 100) 
+    const onTimePercentage = completedTasks.length > 0
+      ? Math.round((onTimeCount / completedTasks.length) * 100)
       : 100;
 
     return {
@@ -214,7 +214,7 @@ const EmployeeDashboard = () => {
   };
 
   const metrics = getTaskMetrics();
-  
+
   // Handle leave request notifications
 
 
@@ -264,11 +264,10 @@ const EmployeeDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -302,7 +301,7 @@ const EmployeeDashboard = () => {
                     </select>
                   </div>
                 </div>
-                
+
                 {filteredTasks.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     No tasks found for the selected project.
@@ -333,67 +332,67 @@ const EmployeeDashboard = () => {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredTasks.map((task) => (
-                          <tr key={task.id}>
-                            <td className="px-6 py-4">
-                              <div className="text-sm font-medium text-gray-900">{task.title}</div>
-                              <div className="text-sm text-gray-500 truncate max-w-xs">{task.description}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{task.projects?.name || 'N/A'}</div>
-                              <div className={`text-xs inline-block px-2 py-1 rounded-full ${
-                                task.projects?.status === 'Active' ? 'bg-green-100 text-green-800' : 
-                                task.projects?.status === 'Completed' ? 'bg-blue-100 text-blue-800' : 
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {task.projects?.status || 'Unknown'}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                ${task.priority === 'High' ? 'bg-red-100 text-red-800' : 
-                                  task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
-                                    'bg-green-100 text-green-800'}`}>
-                                {task.priority}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                ${task.status === 'In Progress' ? 'bg-blue-100 text-blue-800' : 
-                                  task.status === 'Pending' ? 'bg-gray-100 text-gray-800' : 
-                                    task.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                                    'bg-purple-100 text-purple-800'}`}>
-                                {task.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className={`text-sm ${
-                                new Date(task.due_date) < new Date() && task.status !== 'Completed' 
-                                  ? 'text-red-600 font-medium' 
-                                  : 'text-gray-500'
-                              }`}>
-                                {new Date(task.due_date).toLocaleDateString()}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <select 
-                                className="text-blue-600 bg-white border border-gray-300 rounded-md p-1"
-                                value={task.status}
-                                onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                              >
-                                <option value="Pending">Pending</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Completed">Completed</option>
-                                <option value="On Hold">On Hold</option>
-                              </select>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
+  {filteredTasks.map((task) => (
+    <tr key={task.id}>
+      <td className="px-6 py-4">
+        <div className="text-sm font-medium text-gray-900">{task.title}</div>
+        <div className="text-sm text-gray-500 truncate max-w-xs">{task.description}</div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="text-sm text-gray-900">{task.projects?.name || 'N/A'}</div>
+        <div className={`text-xs inline-block px-2 py-1 rounded-full 
+          ${task.projects?.status === 'planning' ? 'bg-purple-100 text-purple-800' :
+            task.projects?.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+            task.projects?.status === 'completed' ? 'bg-green-100 text-green-800' :
+            task.projects?.status === 'on_hold' ? 'bg-orange-100 text-orange-800' :
+            'bg-gray-100 text-gray-800'}`}>
+          {task.projects?.status?.replace(/_/g, ' ') || 'Unknown'}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+          ${task.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+            task.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+            'bg-green-100 text-green-800'}`}>
+          {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+        </span>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+          ${task.status === 'pending' ? 'bg-gray-100 text-gray-800' :
+            task.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+            task.status === 'completed' ? 'bg-green-100 text-green-800' :
+            'bg-red-100 text-red-800'}`}> {/* 'blocked' status */}
+          {task.status.replace(/_/g, ' ').toLowerCase()}
+        </span>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className={`text-sm ${new Date(task.due_date) < new Date() && task.status !== 'completed' 
+            ? 'text-red-600 font-medium' 
+            : 'text-gray-500'}`}>
+          {new Date(task.due_date).toLocaleDateString()}
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        <select
+          className="text-blue-600 bg-white border border-gray-300 rounded-md p-1"
+          value={task.status}
+          onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+        >
+          <option value="pending">Pending</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          
+        </select>
+      </td>
+    </tr>
+  ))}
+</tbody>
                     </table>
                   </div>
                 )}
-                
+
                 <div className="mt-8">
                   <h3 className="text-lg font-medium mb-4">Performance Summary</h3>
                   <div className="bg-gray-50 p-4 rounded-lg">
@@ -429,20 +428,18 @@ const EmployeeDashboard = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {projects.map(project => (
                       <div key={project.id} className="border rounded-lg overflow-hidden shadow-sm">
-                        <div className={`p-4 ${
-                          project.status === 'Active' ? 'bg-green-50 border-b border-green-100' :
-                          project.status === 'Completed' ? 'bg-blue-50 border-b border-blue-100' :
-                          project.status === 'On Hold' ? 'bg-yellow-50 border-b border-yellow-100' :
-                          'bg-gray-50 border-b border-gray-100'
-                        }`}>
+                        <div className={`p-4 ${project.status === 'Active' ? 'bg-blue-50 border-b border-blue-100' :
+                            project.status === 'Completed' ? 'bg-green-50 border-b border-green-100' :
+                              project.status === 'On Hold' ? 'bg-yellow-50 border-b border-yellow-100' :
+                                'bg-gray-50 border-b border-gray-100'
+                          }`}>
                           <div className="flex justify-between items-start">
                             <h3 className="text-lg font-medium">{project.name}</h3>
-                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                              project.status === 'Active' ? 'bg-green-100 text-green-800' :
-                              project.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
-                              project.status === 'On Hold' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
+                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${project.status === 'Active' ? 'bg-blue-50 border-b border-blue-100' :
+                            project.status === 'Completed' ? 'bg-green-50 border-b border-green-100' :
+                              project.status === 'On Hold' ? 'bg-yellow-50 border-b border-yellow-100' :
+                                    'bg-gray-100 text-gray-800'
+                              }`}>
                               {project.status}
                             </span>
                           </div>
@@ -460,7 +457,7 @@ const EmployeeDashboard = () => {
                             </div>
                           </div>
                           <div className="mt-4">
-                            <button 
+                            <button
                               onClick={() => {
                                 setActiveTab('tasks');
                                 setSelectedProject(project.id.toString());
@@ -481,7 +478,7 @@ const EmployeeDashboard = () => {
             {activeTab === 'documents' && (
               <div className="bg-white shadow rounded-lg p-6">
                 <h2 className="text-xl font-semibold mb-6">My Documents</h2>
-                <DocumentList 
+                <DocumentList
                   userRole="Employee"
                   showEmployeeFilter={false}
                   defaultFilters={{
@@ -503,7 +500,7 @@ const EmployeeDashboard = () => {
                 <div className="space-y-6">
                   <div className="bg-white shadow rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">New Leave Request</h2>
-                    <LeaveRequestForm 
+                    <LeaveRequestForm
                       onSuccess={fetchLeaveRequests}
                       balance={leaveBalance}
                     />
@@ -524,11 +521,10 @@ const EmployeeDashboard = () => {
                               From: {new Date(req.start_date).toLocaleDateString()} To: {new Date(req.end_date).toLocaleDateString()}
                             </p>
                             <p className="text-sm">Reason: {req.reason}</p>
-                            <p className={`text-sm font-semibold ${
-                              req.status === 'approved' ? 'text-green-600' :
-                              req.status === 'rejected' ? 'text-red-600' :
-                              'text-yellow-600'
-                            }`}>
+                            <p className={`text-sm font-semibold ${req.status === 'approved' ? 'text-green-600' :
+                                req.status === 'rejected' ? 'text-red-600' :
+                                  'text-yellow-600'
+                              }`}>
                               Status: {req.status}
                             </p>
                           </div>
@@ -537,13 +533,13 @@ const EmployeeDashboard = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="space-y-6">
                   <div className="bg-white shadow rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">Leave Calendar</h2>
                     <LeaveCalendar userId={user.id} />
                   </div>
-                  
+
                   <div className="bg-white shadow rounded-lg p-6">
                     <h2 className="text-xl font-semibold mb-4">Leave Balance</h2>
                     <div className="grid grid-cols-2 gap-4">
