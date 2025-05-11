@@ -439,6 +439,28 @@ const PMDashboard = () => {
     await supabase.auth.signOut();
   };
 
+  const getAvailabilityStatus = (memberId, projectStart, projectEnd) => {
+    const start = new Date(projectStart);
+    const end = new Date(projectEnd);
+
+    const overlappingLeave = leaveRequests.find(req =>
+      req.employee_id === memberId &&
+      req.status === 'approved' &&
+      new Date(req.end_date) >= start &&
+      new Date(req.start_date) <= end
+    );
+
+    if (overlappingLeave) {
+      return {
+        available: false,
+        until: new Date(overlappingLeave.end_date).toLocaleDateString()
+      };
+    }
+
+    return { available: true };
+  };
+
+
   const tabs = [
     { id: 'projectOverview', label: 'Project Overview' },
     { id: 'announcements', label: 'Announcements' },
@@ -678,13 +700,22 @@ const PMDashboard = () => {
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {getProjectMembers(project.id).map((member) => (
-                            <div key={member.id} className="bg-gray-100 px-3 py-1 rounded-full text-sm">
-                              {member.first_name} {member.last_name}
-                            </div>
+                            (() => {
+                              const status = getAvailabilityStatus(member.id, project.start_date, project.deadline);
+                              return (
+                                <div
+                                  key={member.id}
+                                  className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 
+                              ${status.available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                  {member.first_name} {member.last_name}
+                                  <span className="text-xs italic">
+                                    {status.available ? 'Available' : `Unavailable (until ${status.until})`}
+                                  </span>
+                                </div>
+                              );
+                            })()
                           ))}
-                          {getProjectMembers(project.id).length === 0 && (
-                            <p className="text-gray-500 text-sm">No team members assigned yet</p>
-                          )}
+
                         </div>
                       </div>
                       {showMemberModal && (
