@@ -347,7 +347,7 @@ const EmployeeDashboard = () => {
                               <div className="text-sm text-gray-900">{task.projects?.name || 'N/A'}</div>
                               <div className={`text-xs inline-block px-2 py-1 rounded-full ${
                                 task.projects?.status === 'Active' ? 'bg-green-100 text-green-800' : 
-                                task.projects?.status === 'Completed' ? 'bg-blue-100 text-blue-800' : 
+                                task.projects?.status === 'completed' ? 'bg-blue-100 text-blue-800' : 
                                 'bg-yellow-100 text-yellow-800'
                               }`}>
                                 {task.projects?.status || 'Unknown'}
@@ -355,7 +355,7 @@ const EmployeeDashboard = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                ${task.priority === 'High' ? 'bg-red-100 text-red-800' : 
+                                ${task.priority === 'urgent' ? 'bg-red-100 text-red-800' : 
                                   task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
                                     'bg-green-100 text-green-800'}`}>
                                 {task.priority}

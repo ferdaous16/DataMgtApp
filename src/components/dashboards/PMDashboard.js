@@ -324,39 +324,41 @@ const PMDashboard = () => {
   };
 
   const handleUpdateTask = async () => {
-
     const project = projects.find(p => p.id === taskForm.project_id);
     if (!project) {
       console.error('Project not found');
       return;
     }
-
+  
     const dueDate = new Date(taskForm.due_date);
     const projectStart = new Date(project.start_date);
     const projectDeadline = new Date(project.deadline);
-
+  
     if (dueDate < projectStart || dueDate > projectDeadline) {
       setTaskDateError(`Task due date must be between ${formatDate(project.start_date)} and ${formatDate(project.deadline)}`);
-
       return;
     }
     setTaskDateError("");
-
+  
     try {
+      
+      const { assigned_to_employee, ...sanitizedTask } = taskForm;
+      
       const { error } = await supabase
         .from('tasks')
-        .update(taskForm)
+        .update(sanitizedTask) 
         .eq('id', editingTaskId);
-
+  
       if (error) throw error;
-
-      if (taskForm.assigned_to) {
+  
+      if (sanitizedTask.assigned_to) {
         const managerId = user.id;
-        const employeeId = taskForm.assigned_to;
+        const employeeId = sanitizedTask.assigned_to;
         await createTaskAssignmentNotification(editingTaskId, managerId, employeeId);
       }
+      
       setEditingTaskId(null);
-      const projectId = taskForm.project_id;
+      const projectId = sanitizedTask.project_id;
       if (projectId) {
         fetchTasksForProjects([projectId]);
       }
