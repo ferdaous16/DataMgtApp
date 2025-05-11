@@ -439,7 +439,9 @@ const PMDashboard = () => {
             {activeTab === 'projectOverview' ? (
               <div className="p-6">
                  <div className="mb-6">
-                  <AnnouncementWidget limit={3} />
+                  <AnnouncementWidget limit={3}
+                    onViewAll={() => setActiveTab('announcements')}
+                  />
                 </div>
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold">My Projects & Tasks</h2>

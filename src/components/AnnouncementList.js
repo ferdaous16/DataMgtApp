@@ -98,7 +98,9 @@ const AnnouncementList = ({ userRole, filter = {}, limit = 10 }) => {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
+    date.setUTCHours(23, 59, 0, 0);
     return date.toLocaleDateString(undefined, { 
+      timeZone: 'UTC',
       year: 'numeric', 
       month: 'short', 
       day: 'numeric',
@@ -190,8 +192,18 @@ const AnnouncementList = ({ userRole, filter = {}, limit = 10 }) => {
               </div>
               
               <div className="p-4 whitespace-pre-wrap text-gray-700">
+                {announcement.photo_url && (
+                  <div className="mb-4">
+                    <img
+                      src={announcement.photo_url}
+                      alt={announcement.title}
+                      className="max-w-full h-auto rounded-md"
+                    />
+                  </div>
+                )}
                 {announcement.content}
               </div>
+              
             </div>
           ))}
         </div>
