@@ -33,6 +33,8 @@ const PMDashboard = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
   const [showChatModal, setShowChatModal] = useState(false);
 
+  const [dateError, setDateError] = useState("");
+  const [taskDateError, setTaskDateError] = useState("");
   useEffect(() => {
     fetchUserData();
   }, []);
@@ -253,6 +255,16 @@ const PMDashboard = () => {
   };
 
   const handleUpdateProject = async () => {
+
+    const startDate = new Date(projectForm.start_date);
+    const deadlineDate = new Date(projectForm.deadline);
+
+    if (startDate >= deadlineDate) {
+      setDateError("Deadline must be after the start date.");
+
+      return;
+    }
+    setDateError("");
     try {
       const { error } = await supabase
         .from('projects')
@@ -312,6 +324,24 @@ const PMDashboard = () => {
   };
 
   const handleUpdateTask = async () => {
+
+    const project = projects.find(p => p.id === taskForm.project_id);
+    if (!project) {
+      console.error('Project not found');
+      return;
+    }
+
+    const dueDate = new Date(taskForm.due_date);
+    const projectStart = new Date(project.start_date);
+    const projectDeadline = new Date(project.deadline);
+
+    if (dueDate < projectStart || dueDate > projectDeadline) {
+      setTaskDateError(`Task due date must be between ${formatDate(project.start_date)} and ${formatDate(project.deadline)}`);
+
+      return;
+    }
+    setTaskDateError("");
+
     try {
       const { error } = await supabase
         .from('tasks')
@@ -463,8 +493,8 @@ const PMDashboard = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                 >
                   {tab.label}
@@ -550,6 +580,32 @@ const PMDashboard = () => {
                               />
                             </div>
                           </div>
+                          {dateError && (
+                            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded shadow-sm">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0">
+                                  <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <div className="ml-3">
+                                  <p className="text-sm text-red-700">{dateError}</p>
+                                </div>
+                                <div className="ml-auto pl-3">
+                                  <div className="-mx-1.5 -my-1.5">
+                                    <button
+                                      onClick={() => setDateError("")}
+                                      className="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none"
+                                    >
+                                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                           <div className="flex gap-2">
                             <button
                               onClick={handleUpdateProject}
@@ -751,6 +807,32 @@ const PMDashboard = () => {
                                       </div>
 
                                     </div>
+                                    {taskDateError && (
+                                      <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm">
+                                        <div className="flex items-center">
+                                          <div className="flex-shrink-0">
+                                            <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                          </div>
+                                          <div className="ml-3">
+                                            <p className="text-sm text-red-700">{taskDateError}</p>
+                                          </div>
+                                          <div className="ml-auto pl-3">
+                                            <div className="-mx-1.5 -my-1.5">
+                                              <button
+                                                onClick={() => setTaskDateError("")}
+                                                className="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none"
+                                              >
+                                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                </svg>
+                                              </button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
                                     <div className="flex gap-2">
                                       <button
                                         onClick={handleUpdateTask}
@@ -793,9 +875,9 @@ const PMDashboard = () => {
                                       <div>
                                         <p className="text-xs text-gray-500">Status</p>
                                         <p className={`text-sm font-medium capitalize ${task.status === 'completed' ? 'text-green-600' :
-                                            task.status === 'blocked' ? 'text-red-600' :
-                                              task.status === 'in_progress' ? 'text-blue-600' :
-                                                'text-gray-600'
+                                          task.status === 'blocked' ? 'text-red-600' :
+                                            task.status === 'in_progress' ? 'text-blue-600' :
+                                              'text-gray-600'
                                           }`}>
                                           {task.status || 'Not set'}
                                         </p>
@@ -803,9 +885,9 @@ const PMDashboard = () => {
                                       <div>
                                         <p className="text-xs text-gray-500">Priority</p>
                                         <p className={`text-sm font-medium capitalize ${task.priority === 'urgent' ? 'text-red-600' :
-                                            task.priority === 'high' ? 'text-orange-600' :
-                                              task.priority === 'medium' ? 'text-yellow-600' :
-                                                'text-green-600'
+                                          task.priority === 'high' ? 'text-orange-600' :
+                                            task.priority === 'medium' ? 'text-yellow-600' :
+                                              'text-green-600'
                                           }`}>
                                           {task.priority || 'Not set'}
                                         </p>
@@ -886,8 +968,8 @@ const PMDashboard = () => {
                             </p>
                             <p className="text-sm">Reason: {req.reason}</p>
                             <p className={`text-sm font-semibold ${req.status === 'approved' ? 'text-green-600' :
-                                req.status === 'rejected' ? 'text-red-600' :
-                                  'text-yellow-600'
+                              req.status === 'rejected' ? 'text-red-600' :
+                                'text-yellow-600'
                               }`}>
                               Status: {req.status}
                             </p>
