@@ -123,8 +123,8 @@ const LandingPage = () => {
               gap: '20px'
             }}>
               <a href="#" style={{ color: '#1f2937', textDecoration: 'none' }}>Home</a>
-              <a href="#" style={{ color: '#6b7280', textDecoration: 'none' }}>Features</a>
-              <a href="#" style={{ color: '#6b7280', textDecoration: 'none' }}>Contact</a>
+              <a href="/features" style={{ color: '#6b7280', textDecoration: 'none' }}>Features</a>
+              <a href="/contact" style={{ color: '#6b7280', textDecoration: 'none' }}>Contact</a>
             </div>
             <div style={{
               display: 'flex',
@@ -190,14 +190,14 @@ const LandingPage = () => {
             padding: '12px 16px',
             borderBottom: '1px solid #f3f4f6'
           }}>Home</a>
-          <a href="#" style={{ 
+          <a href="/features" style={{ 
             color: '#6b7280', 
             textDecoration: 'none', 
             padding: '12px 16px',
             borderBottom: '1px solid #f3f4f6'
           }}>Features</a>
          
-          <a href="#" style={{ 
+          <a href="/contact" style={{ 
             color: '#6b7280', 
             textDecoration: 'none', 
             padding: '12px 16px',
@@ -264,28 +264,32 @@ const LandingPage = () => {
             gap: '16px',
             flexWrap: 'wrap'
           }}>
-            <button style={{
+            <a href="/signup" style={{
               backgroundColor: '#2563eb',
               color: 'white',
               padding: '10px 24px',
               borderRadius: '50px',
               border: 'none',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              textDecoration: 'none',
+              display: 'inline-block'
             }}>
               Get Started
-            </button>
-            <button style={{
+            </a>
+            <a href="/features" style={{
               backgroundColor: 'transparent',
               color: '#2563eb',
               padding: '10px 24px',
               borderRadius: '50px',
               border: '1px solid #2563eb',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              textDecoration: 'none',
+              display: 'inline-block'
             }}>
               Learn More
-            </button>
+            </a>
           </div>
         </div>
         
@@ -415,7 +419,7 @@ const LandingPage = () => {
             }}>
               <h4 style={{ fontSize: '16px', marginBottom: '15px', fontWeight: 'bold' }}>Product</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <a href="#" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Features</a>
+                <a href="/features" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Features</a>
                
               </div>
             </div>
@@ -427,8 +431,8 @@ const LandingPage = () => {
             }}>
               <h4 style={{ fontSize: '16px', marginBottom: '15px', fontWeight: 'bold' }}>Company</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <a href="#" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>About Us</a>
-                <a href="#" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Contact</a>
+                <a href="/about" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>About Us</a>
+                <a href="/contact" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Contact</a>
               </div>
             </div>
             
@@ -439,8 +443,8 @@ const LandingPage = () => {
             }}>
               <h4 style={{ fontSize: '16px', marginBottom: '15px', fontWeight: 'bold' }}>Support</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <a href="#" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Help Center</a>
-                <a href="#" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Documentation</a>
+                <a href="help" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Help Center</a>
+                <a href="/documentation" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Documentation</a>
               </div>
             </div>
           </div>
@@ -460,8 +464,8 @@ const LandingPage = () => {
               &copy; {new Date().getFullYear()} DataMgtApp HR. All rights reserved.
             </div>
             <div style={{ display: 'flex', gap: '15px' }}>
-              <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Privacy</a>
-              <a href="#" style={{ color: '#94a3b8', textDecoration: 'none' }}>Terms</a>
+              <a href="/privacy" style={{ color: '#94a3b8', textDecoration: 'none' }}>Privacy</a>
+              <a href="/terms" style={{ color: '#94a3b8', textDecoration: 'none' }}>Terms</a>
             </div>
           </div>
         </div>

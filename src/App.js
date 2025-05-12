@@ -9,6 +9,13 @@ import HRDashboard from './components/dashboards/HRDashboard';
 import PMDashboard from './components/dashboards/PMDashboard';
 import EmployeeDashboard from './components/dashboards/EmployeeDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import Features from './components/staticPages/Features';
+import Contact from './components/staticPages/Contact';
+import HelpCenter from './components/staticPages/HelpCenter';
+import Documentation from './components/staticPages/Documentation';
+import AboutUs from './components/staticPages/AboutUs';
+import Privacy from './components/staticPages/Privacy';
+import Terms from './components/staticPages/Terms';
 import './App.css'
 
 function App() {
@@ -121,7 +128,13 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/signup" element={!session ? <SignUp /> : <Navigate to="/dashboard" />} />
           <Route path="/signin" element={!session ? <SignIn /> : <Navigate to="/dashboard" />} />
-          
+          <Route path="/features" element={<Features />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/help" element={<HelpCenter />} />
+          <Route path="/documentation" element={<Documentation />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route 
             path="/dashboard" 
             element={
