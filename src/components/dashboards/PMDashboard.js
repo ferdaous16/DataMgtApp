@@ -32,9 +32,36 @@ const PMDashboard = () => {
   const [showChatModal, setShowChatModal] = useState(false);
   const [dateError, setDateError] = useState("");
   const [taskDateError, setTaskDateError] = useState("");
+
+  const [expandedPerformanceProjectId, setExpandedPerformanceProjectId] = useState(null);
   useEffect(() => {
     fetchUserData();
   }, []);
+
+  const togglePerformanceSummary = (projectId) => {
+    setExpandedPerformanceProjectId(
+      expandedPerformanceProjectId === projectId ? null : projectId
+    );
+  };
+
+  const calculateProjectPerformance = (projectId) => {
+    const projectTasks = getTasksForProject(projectId);
+    const totalTasks = projectTasks.length;
+
+    if (totalTasks === 0) return null;
+
+    const completedTasks = projectTasks.filter(t => t.status === 'completed').length;
+    const progressPercentage = Math.round((completedTasks / totalTasks) * 100);
+
+    return {
+      totalTasks,
+      completedTasks,
+      progressPercentage,
+      pending: projectTasks.filter(t => t.status === 'pending').length,
+      inProgress: projectTasks.filter(t => t.status === 'in_progress').length,
+      blocked: projectTasks.filter(t => t.status === 'blocked').length
+    };
+  };
 
   const fetchUserData = async () => {
     try {
@@ -326,34 +353,34 @@ const PMDashboard = () => {
       console.error('Project not found');
       return;
     }
-  
+
     const dueDate = new Date(taskForm.due_date);
     const projectStart = new Date(project.start_date);
     const projectDeadline = new Date(project.deadline);
-  
+
     if (dueDate < projectStart || dueDate > projectDeadline) {
       setTaskDateError(`Task due date must be between ${formatDate(project.start_date)} and ${formatDate(project.deadline)}`);
       return;
     }
     setTaskDateError("");
-  
+
     try {
-      
+
       const { assigned_to_employee, ...sanitizedTask } = taskForm;
-      
+
       const { error } = await supabase
         .from('tasks')
-        .update(sanitizedTask) 
+        .update(sanitizedTask)
         .eq('id', editingTaskId);
-  
+
       if (error) throw error;
-  
+
       if (sanitizedTask.assigned_to) {
         const managerId = user.id;
         const employeeId = sanitizedTask.assigned_to;
         await createTaskAssignmentNotification(editingTaskId, managerId, employeeId);
       }
-      
+
       setEditingTaskId(null);
       const projectId = sanitizedTask.project_id;
       if (projectId) {
@@ -683,6 +710,103 @@ const PMDashboard = () => {
                         </>
                       )}
 
+                      <div className="mt-4 flex justify-between items-center">
+                        <div className="flex gap-2">
+
+                          <button
+                            onClick={() => togglePerformanceSummary(project.id)}
+                            className="text-blue-500 text-sm hover:underline"
+                          >
+                            {expandedPerformanceProjectId === project.id
+                              ? 'Hide Performance'
+                              : 'Show Performance'}
+                          </button>
+                        </div>
+                      </div>
+
+                      {expandedPerformanceProjectId === project.id && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                          <h4 className="font-medium mb-3">Project Performance</h4>
+
+                          {(() => {
+                            const performance = calculateProjectPerformance(project.id);
+                            if (!performance) {
+                              return <p className="text-gray-500">No tasks to measure performance</p>;
+                            }
+
+                            return (
+                              <div className="space-y-4">
+                                {/* Progress Bar */}
+                                <div>
+                                  <div className="flex justify-between text-sm mb-1">
+                                    <span>Overall Progress</span>
+                                    <span>{performance.progressPercentage}%</span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div
+                                      className="bg-blue-600 h-2.5 rounded-full"
+                                      style={{ width: `${performance.progressPercentage}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+
+                                {/* Task Status Breakdown */}
+                                <div className="grid grid-cols-4 gap-2">
+                                  <div className="text-center p-2 bg-green-100 rounded">
+                                    <div className="text-lg font-bold">{performance.completedTasks}</div>
+                                    <div className="text-xs text-gray-600">Completed</div>
+                                  </div>
+                                  <div className="text-center p-2 bg-yellow-100 rounded">
+                                    <div className="text-lg font-bold">{performance.inProgress}</div>
+                                    <div className="text-xs text-gray-600">In Progress</div>
+                                  </div>
+                                  <div className="text-center p-2 bg-gray-100 rounded">
+                                    <div className="text-lg font-bold">{performance.pending}</div>
+                                    <div className="text-xs text-gray-600">Pending</div>
+                                  </div>
+                                  <div className="text-center p-2 bg-red-100 rounded">
+                                    <div className="text-lg font-bold">{performance.blocked}</div>
+                                    <div className="text-xs text-gray-600">Blocked</div>
+                                  </div>
+                                </div>
+
+                                {/* Team Performance */}
+                                <div className="mt-4">
+                                  <h5 className="font-medium mb-2">Team Progress</h5>
+                                  {getProjectMembers(project.id).map(member => {
+                                    const memberTasks = tasks.filter(
+                                      t => t.assigned_to === member.id && t.project_id === project.id
+                                    );
+                                    const completed = memberTasks.filter(t => t.status === 'completed').length;
+                                    const total = memberTasks.length;
+
+                                    return (
+                                      <div key={member.id} className="mb-2">
+                                        <div className="flex justify-between text-sm">
+                                          <span>
+                                            {member.first_name} {member.last_name}
+                                          </span>
+                                          <span>
+                                            {total > 0 ? Math.round((completed / total) * 100) : 0}%
+                                          </span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-2">
+                                          <div
+                                            className="bg-green-500 h-2 rounded-full"
+                                            style={{
+                                              width: `${total > 0 ? Math.round((completed / total) * 100) : 0}%`
+                                            }}
+                                          ></div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
                       {/* Project Team Members */}
                       <div className="mt-6">
                         <div className="flex justify-between items-center mb-2">
