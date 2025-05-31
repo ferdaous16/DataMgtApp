@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Typed from 'typed.js';
 import HrImg from '../assets/HrImg.jpg';
 import { HiMenu, HiX, HiChartBar, HiDocumentText, HiUserGroup, HiClock } from 'react-icons/hi';
+import mainLogo from'../assets/logo.png';
 
 const LandingPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -107,33 +108,33 @@ const LandingPage = () => {
         position: 'relative',
         zIndex: 1000
       }}>
-        <div style={{
-          fontSize: '24px',
-          fontWeight: 'bold',
-          color: '#2563eb'
-        }}>
-          DataMgtApp
-        </div>
-        
+
+        <img src={mainLogo} class='App-logo' alt='FlowDesk Logo' />
+
         {/* Desktop Menu */}
         {windowWidth > 768 ? (
           <>
             <div style={{
               display: 'flex',
-              gap: '20px'
+              gap: '20px',
+              alignItems: 'center',
+              fontWeight: 'bold',
             }}>
-              <a href="#" style={{ color: '#1f2937', textDecoration: 'none' }}>Home</a>
+              
+              <a href="#" style={{ color: '#1f2937', textDecoration: 'none'}}>Home</a>
               <a href="/features" style={{ color: '#6b7280', textDecoration: 'none' }}>Features</a>
               <a href="/contact" style={{ color: '#6b7280', textDecoration: 'none' }}>Contact</a>
             </div>
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '20px'
             }}>
               <a href="/signin" style={{ 
                 color: '#6b7280', 
-                textDecoration: 'none'
+                textDecoration: 'none',
+                fontWeight: 'bold'
+
               }}>Login</a>
               <a href="/signup" style={{ 
                 backgroundColor: '#2563eb',
@@ -406,7 +407,8 @@ const LandingPage = () => {
               minWidth: '200px',
               marginBottom: '20px'
             }}>
-              <h3 style={{ fontSize: '18px', marginBottom: '15px', fontWeight: 'bold' }}>DataMgtApp</h3>
+              <img src={mainLogo} class='App-logo' alt='FlowDesk Logo' />
+
               <p style={{ color: '#d1d5db', fontSize: '14px', lineHeight: '1.6' }}>
                 Simplify your HR processes with our comprehensive dashboard solution.
               </p>
@@ -461,7 +463,7 @@ const LandingPage = () => {
             gap: '10px'
           }}>
             <div>
-              &copy; {new Date().getFullYear()} DataMgtApp HR. All rights reserved.
+              &copy; {new Date().getFullYear()} FlowDesk. All rights reserved.
             </div>
             <div style={{ display: 'flex', gap: '15px' }}>
               <a href="/privacy" style={{ color: '#94a3b8', textDecoration: 'none' }}>Privacy</a>
