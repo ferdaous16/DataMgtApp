@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { NotificationAPI } from '../../services/notificationAPI';
 import { MessageAPI } from '../../services/messageAPI';
+import messages_icon from'../../assets/icons/messages-icon-2.png';
 
 const NotificationBadge = ({ userId, type = 'all', onClick }) => {
   const [count, setCount] = useState(0);
@@ -63,16 +64,19 @@ const NotificationBadge = ({ userId, type = 'all', onClick }) => {
     }
   };
 
-  if (count === 0) return null;
-
   return (
     <button 
       onClick={onClick}
       className="relative inline-flex"
     >
-      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform bg-red-500 rounded-full">
-        {count > 99 ? '99+' : count}
-      </span>
+      <img src={messages_icon} alt="Message icon" width="25px" className="mr-1" />
+
+      {count != 0 &&
+        <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+          {count > 99 ? '99+' : count}
+        </span>
+      }
+      
     </button>
   );
 };

@@ -5,8 +5,8 @@ import LeaveRequestForm from '../LeaveRequestForm';
 import LeaveCalendar from '../LeaveCalendar';
 import AnnouncementWidget from '../AnnouncementWidget';
 import AnnouncementList from '../AnnouncementList';
-import NotificationCenter from '../NotificationCenter/NotificationCenter';
-import NotificationBadge from '../NotificationSystem/NotificationBadge';
+import DashboardHeader from '../DashboardHeader';
+
 
 const EmployeeDashboard = () => {
   const [user, setUser] = useState(null);
@@ -18,7 +18,6 @@ const EmployeeDashboard = () => {
   const [leaveBalance, setLeaveBalance] = useState({});
   const [leaveTypes, setLeaveTypes] = useState([]);
   const [selectedProject, setSelectedProject] = useState('all');
-  const [showChatModal, setShowChatModal] = useState(false);
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
@@ -172,10 +171,6 @@ const EmployeeDashboard = () => {
     { id: 'leaves', label: 'Leave Management' }
   ];
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
-
   const filteredTasks = selectedProject === 'all' 
     ? tasks 
     : tasks.filter(task => task.project_id.toString() === selectedProject);
@@ -225,37 +220,9 @@ const EmployeeDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Employee Dashboard</h1>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm text-gray-500">Welcome,</p>
-              <p className="text-sm font-medium">{user?.first_name} {user?.last_name}</p>
-            </div>
-            <NotificationCenter
-              userId={user?.id}
-              navigateToConversation={(conversationId) => {
-                setShowChatModal(true);
-                // We'll need to pass this to the ChatModal
-              }}
-            />
-            <button
-              onClick={() => setShowChatModal(true)}
-              className="relative bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
-            >
-              Messages
-              <NotificationBadge userId={user?.id} type="messages" />
-            </button>
-            <button
-              onClick={handleSignOut}
-              className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600"
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </header>
+
+      <DashboardHeader user={user} employees={employees} />
+
       <main>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200 mb-6">

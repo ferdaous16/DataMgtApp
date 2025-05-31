@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import mainLogo from'../assets/logo.png';
 import sign_out_icon from'../assets/icons/sign-out-icon.png';
-import messages_icon from'../assets/icons/messages-icon-2.png';
 import { supabase } from '../supabaseClient';
 import NotificationCenter from './NotificationCenter/NotificationCenter';
 import NotificationBadge from './NotificationSystem/NotificationBadge';
@@ -31,14 +30,11 @@ return (
             // We'll need to pass this to the ChatModal
             }}
         />
-        <button
-            onClick={() => setShowChatModal(true)}
-            
-        >
-            <img src={messages_icon} alt="Sign Out Icon" width="25px" className="mr-1" />
-            <NotificationBadge userId={user?.id} type="messages" />
-        </button>
-        <button
+
+        {/* Chat button */}
+        <NotificationBadge userId={user?.id} type="messages" onClick={() => setShowChatModal(true)}/>
+        
+        <button className='relative align-middle py-1 text-gray-600 hover:text-gray-900 focus:outline-none'
             onClick={handleSignOut}
         >
             <img src={sign_out_icon} alt="Sign Out Icon" width="23px" className="" />
